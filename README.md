@@ -10,3 +10,5 @@ Run `composer install` to load dependencies
 Run `vendor/bin/phinx init` to create a phinx.yml file and enter your db credentials in there
 
 Run `vendor/bin/phinx migrate` to create the default users table
+
+This will now support standard user authentication with required email confirmation.  Build out as ya wish.
