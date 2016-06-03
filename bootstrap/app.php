@@ -1,6 +1,7 @@
 <?php
 
 use Respect\Validation\Validator as v;
+use App\Mail\Mailer;
 
 session_start();
 
@@ -22,6 +23,16 @@ $app = new \Slim\App([
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix' => '',
+        ],
+        'mail' => [
+            'smtp_auth' => true,
+            'smtp_secure'   => 'tls',
+            'host' => getenv('mail.host'),
+            'username' => getenv('mail.username'),
+            'password' => getenv('mail.password'),
+            'port' => getenv('mail.port'),
+            'name' => getenv('mail.name'),
+            'html'  => true
         ]
     ],
 ]);
@@ -83,6 +94,21 @@ $container['PasswordController'] = function ($container) {
 
 $container['csrf'] = function ($container) {
     return new \Slim\Csrf\Guard;
+};
+
+$container['mail'] = function ($container) {
+    $mailer = new \PHPMailer;
+    $mailer->isSMTP();
+    $mailer->Host = $container['settings']['mail']['host'];
+    $mailer->SMTPAuth = $container['settings']['mail']['smtp_auth'];
+    $mailer->SMTPSecure = $container['settings']['mail']['smtp_secure'];
+    $mailer->Port = $container['settings']['mail']['port'];
+    $mailer->Username = $container['settings']['mail']['username'];
+    $mailer->Password = $container['settings']['mail']['password'];
+    $mailer->isHTML = $container['settings']['mail']['html'];
+    $mailer->setFrom($container['settings']['mail']['username'], $container['settings']['mail']['name']);
+
+    return new Mailer($container['view'], $mailer);
 };
 
 $app->add(new \App\Middleware\ValidationErrorsMiddleware($container));

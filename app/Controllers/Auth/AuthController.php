@@ -58,6 +58,12 @@ class AuthController extends Controller
             'password' => password_hash($request->getParam('password'), PASSWORD_DEFAULT),
         ]);
 
+        // send email
+        $this->mail->send($response, 'email/auth/registered.php', ['user' => $user], function($message) use ($user) {
+            $message->to($user->email);
+            $message->subject('Thanks for registering');
+        });
+
         $this->flash->addMessage('info', 'You have been signed up!');
 
         $this->auth->attempt($user->email, $request->getParam('password'));
