@@ -33,6 +33,9 @@ $app = new \Slim\App([
             'port' => getenv('mail.port'),
             'name' => getenv('mail.name'),
             'html'  => true
+        ],
+        'app' => [
+            'url' => getenv('baseUrl')
         ]
     ],
 ]);

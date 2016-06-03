@@ -19,3 +19,5 @@ $app->group('', function () {
     $this->get('/auth/password/change', 'PasswordController:getChangePassword')->setName('auth.password.change');
     $this->post('/auth/password/change', 'PasswordController:postChangePassword');
 })->add(new AuthMiddleware($container));
+
+$app->get('/activate', 'AuthController:activate')->setName('activate');

@@ -56,18 +56,37 @@ class AuthController extends Controller
             'email' => $request->getParam('email'),
             'name' => $request->getParam('name'),
             'password' => password_hash($request->getParam('password'), PASSWORD_DEFAULT),
+            'active'    => false,
+            'active_hash'   => md5($request->getParam('email')),
         ]);
 
         // send email
-        $this->mail->send('email/auth/registered.php', ['user' => $user], function($message) use ($user) {
+        $this->mail->send('email/auth/registered.php', ['user' => $user, 'url' => $this->container['settings']['app']['url']], function($message) use ($user) {
             $message->to($user->email);
             $message->subject('Thanks for registering');
         });
 
-        $this->flash->addMessage('info', 'You have been signed up!');
+        $this->flash->addMessage('info', 'Thanks for signing up!  You will need to check your email and click on the link to confirm your account');
 
         $this->auth->attempt($user->email, $request->getParam('password'));
 
         return $response->withRedirect($this->router->pathFor('home'));
+    }
+
+    public function activate($request, $response)
+    {
+        $email = $request->getParam('email');
+        $hash = $request->getParam('identifier');
+
+        $user = User::where('email', $email)->where('active', false)->where('active_hash', $hash)->first();
+
+        if (!$user) {
+            $this->flash->addMessage('info', 'You have been signed up!');
+        } else {
+            $user->activateAccount();
+            $this->flash->addMessage('info', 'Your account has been activated!');
+        }
+        return $response->withRedirect($this->router->pathFor('home'));
+
     }
 }
