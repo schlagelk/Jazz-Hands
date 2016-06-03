@@ -105,7 +105,7 @@ $container['mail'] = function ($container) {
     $mailer->Port = $container['settings']['mail']['port'];
     $mailer->Username = $container['settings']['mail']['username'];
     $mailer->Password = $container['settings']['mail']['password'];
-    $mailer->isHTML = $container['settings']['mail']['html'];
+    $mailer->isHTML(true);
     $mailer->setFrom($container['settings']['mail']['username'], $container['settings']['mail']['name']);
 
     return new Mailer($container['view'], $mailer);

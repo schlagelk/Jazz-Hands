@@ -12,9 +12,9 @@ class Mailer {
 		$this->view = $view;
 	}
 
-	public function send($response, $template, $data, $callback) {
+	public function send($template, $data, $callback) {
 		$message = new Message($this->mailer);
-		$message->body($this->view->render($response, $template, $data));
+		$message->body($this->view->fetch($template, $data));
 		call_user_func($callback, $message);
 
 		$this->mailer->send();

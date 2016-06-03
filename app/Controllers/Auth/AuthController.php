@@ -59,7 +59,7 @@ class AuthController extends Controller
         ]);
 
         // send email
-        $this->mail->send($response, 'email/auth/registered.php', ['user' => $user], function($message) use ($user) {
+        $this->mail->send('email/auth/registered.php', ['user' => $user], function($message) use ($user) {
             $message->to($user->email);
             $message->subject('Thanks for registering');
         });
