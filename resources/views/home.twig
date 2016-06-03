@@ -1,5 +1,5 @@
 {% extends 'templates/app.twig' %}
 
 {% block content %}
-    Welcome to Jazz Hands
+    Welcome to Jazz Hands{% if auth.check %}, {{ auth.user.name }}{% endif %}
 {% endblock %}
