@@ -89,4 +89,91 @@ class AuthController extends Controller
         return $response->withRedirect($this->router->pathFor('home'));
 
     }
+
+    public function getForgotPassword($request, $response)
+    {
+        return $this->view->render($response, 'auth/password/forgot.twig');
+    }
+
+    public function postRecoverPassword($request, $response)
+    {
+        $email = $request->getParam('email');
+        
+        $validation = $this->validator->validate($request, [
+            'email' => v::noWhitespace()->notEmpty()->email(),
+        ]);
+
+        if ($validation->failed()) {
+            return $response->withRedirect($this->router->pathFor('auth.password.forgot'));
+        }
+
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            $this->flash->addMessage('error', 'We could not find that user');
+        } else {
+            $identifier = md5($email);
+            $user->update([
+                'recover_hash' => password_hash($identifier, PASSWORD_DEFAULT)
+            ]);
+            $this->flash->addMessage('info', 'Please check your email for instructions on resetting your password.');
+
+            //send email
+            $this->mail->send('email/auth/password-recover.php', ['user' => $user, 'identifier' => $identifier, 'url' => $this->container['settings']['app']['url']], function($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Thanks for registering');
+            });
+        }
+        return $response->withRedirect($this->router->pathFor('home'));
+    }
+
+    public function getResetPassword($request, $response)
+    {
+        $email = $request->getParam('email');
+        $identifier = $request->getParam('identifier');
+        
+        $user = User::where('email', $email)->first();
+
+        if (!$user || !$user->recover_hash) {
+            return $response->withRedirect($this->router->pathFor('home'));
+        }
+
+        if (!password_verify($identifier, $user->recover_hash)) {
+            return $response->withRedirect($this->router->pathFor('home'));
+        }
+        return $this->view->render($response, 'auth/password/reset.twig', ['user' => $user, 'identifier' => $identifier]);
+    }
+
+    public function postResetPassword($request, $response)
+    {
+        $email = $request->getParam('email');
+        $identifier = $request->getParam('identifier');
+        $password = $request->getParam('password');
+        
+        $user = User::where('email', $email)->first();
+
+        if (!$user || !$user->recover_hash) {
+            return $response->withRedirect($this->router->pathFor('home'));
+        }
+
+        if (!password_verify($identifier, $user->recover_hash)) {
+            return $response->withRedirect($this->router->pathFor('home'));
+        }
+
+        $validation = $this->validator->validate($request, [
+            'password' => v::noWhitespace()->notEmpty(),
+        ]);
+
+        if (!$validation->failed()) {
+            $user->update([
+                'password' => password_hash($password, PASSWORD_DEFAULT),
+                'recover_hash'  => null
+            ]);
+
+            $this->flash->addMessage('info', 'Your password has been reset and you can now log in.');
+            return $response->withRedirect($this->router->pathFor('home'));
+        }
+
+        return $this->view->render($response, 'auth/password/reset.twig', ['email' => $user.email, 'identifier' => $identifier]);
+    }
 }

@@ -13,7 +13,8 @@ class User extends Model
         'name',
         'password',
         'active',
-        'active_hash'
+        'active_hash',
+        'recover_hash'
     ];
 
     public function setPassword($password)

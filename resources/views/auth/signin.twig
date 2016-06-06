@@ -21,6 +21,10 @@
                                 <span class="help-block">{{ errors.password | first }}</span>
                             {% endif %}
                         </div>
+                        <div>
+                            <a href="{{ path_for('auth.password.forgot') }}">Reset Password</a>
+                        </div>
+                        <br>
                         <button type="submit" class="btn btn-default">Sign in</button>
 
                         {{ csrf.field | raw }}
