@@ -121,7 +121,7 @@ class AuthController extends Controller
             //send email
             $this->mail->send('email/auth/password-recover.php', ['user' => $user, 'identifier' => $identifier, 'url' => $this->container['settings']['app']['url']], function($message) use ($user) {
                 $message->to($user->email);
-                $message->subject('Thanks for registering');
+                $message->subject('Password Reset');
             });
         }
         return $response->withRedirect($this->router->pathFor('home'));
