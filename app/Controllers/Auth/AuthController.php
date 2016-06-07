@@ -171,7 +171,7 @@ class AuthController extends Controller
             ]);
 
             $this->flash->addMessage('info', 'Your password has been reset and you can now log in.');
-            return $response->withRedirect($this->router->pathFor('home'));
+            return $response->withRedirect($this->router->pathFor('auth.signin'));
         }
 
         return $this->view->render($response, 'auth/password/reset.twig', ['email' => $user.email, 'identifier' => $identifier]);
